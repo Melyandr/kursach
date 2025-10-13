@@ -1,0 +1,86 @@
+/* Загальний контейнер */
+.create-article-container {
+max-width: 800px;
+margin: 50px auto;
+padding: 30px;
+background-color: #ffffff;
+border-radius: 16px;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+font-family: 'Inter', sans-serif;
+}
+
+/* Заголовок сторінки */
+.create-article-title {
+font-size: 28px;
+font-weight: 600;
+color: #333;
+margin-bottom: 25px;
+text-align: center;
+}
+
+/* Форма */
+.create-article-form {
+display: flex;
+flex-direction: column;
+gap: 20px;
+}
+
+/* Поля введення */
+.create-article-input,
+.create-article-textarea,
+.create-article-select {
+width: 100%;
+padding: 5px 5px;
+border: 1px solid #ddd;
+border-radius: 8px;
+font-size: 16px;
+transition: all 0.2s ease;
+}
+
+.create-article-input:focus,
+.create-article-textarea:focus,
+.create-article-select:focus {
+border-color: #007bff;
+outline: none;
+box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+/* Текстова область */
+.create-article-textarea {
+resize: vertical;
+min-height: 150px;
+}
+
+/* Кнопка */
+.create-article-button {
+background-color: #007bff;
+color: white;
+font-size: 17px;
+padding: 12px 0;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+transition: background-color 0.25s ease;
+}
+
+.create-article-button:hover {
+background-color: #0056b3;
+}
+
+/* Повідомлення про успіх / помилку */
+.create-article-message {
+text-align: center;
+font-size: 16px;
+padding: 10px;
+border-radius: 8px;
+}
+
+.create-article-message.success {
+background-color: #e6f7e6;
+color: #2e7d32;
+}
+
+.create-article-message.error {
+background-color: #fdecea;
+color: #c62828;
+}

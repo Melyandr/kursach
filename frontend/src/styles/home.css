@@ -1,0 +1,58 @@
+.home-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.home-title {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.articles-list {
+  display: block;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  list-style: none;
+  padding: 0;
+}
+
+.article-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.article-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.article-title {
+  font-size: 20px;
+  color: #0077cc;
+  margin-bottom: 10px;
+}
+
+.article-excerpt {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.article-meta {
+  font-size: 12px;
+  color: #888;
+}
+.article-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
