@@ -47,6 +47,9 @@ frontend/.pnp.js
 frontend/yarn-error.log
 frontend/package-lock.json
 
+
+node_modules
+
 # === 🧪 Тести / Coverage ===
 .coverage
 htmlcov/
