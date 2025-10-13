@@ -4,29 +4,28 @@ __pycache__/
 *.pyo
 *.pyd
 *.py.class
+
+# Логи
 *.log
 *.pot
-*.pyproj
-*.sublime-project
-*.sublime-workspace
 
-# Віртуальне середовище
+# Віртуальні середовища
 venv/
 env/
 .venv/
 ENV/
 env.bak/
 
-# SQLite база (якщо використовуєш)
+# SQLite база (якщо використовується)
 db.sqlite3
 db.sqlite3-journal
 
-# Статичні файли Django
+# Статичні файли та медіа
 /static/
 staticfiles/
 media/
 
-# Налаштування/секрети
+# Налаштування / секрети
 *.env
 .env.local
 .env.development.local
@@ -45,17 +44,8 @@ frontend/build/
 frontend/.env
 frontend/.pnp
 frontend/.pnp.js
-frontend/package-lock.json
 frontend/yarn-error.log
-
-# Кеші для IDE
-.idea/
-.vscode/
-*.iml
-
-# Системні файли
-.DS_Store
-Thumbs.db
+frontend/package-lock.json
 
 # === 🧪 Тести / Coverage ===
 .coverage
@@ -63,3 +53,12 @@ htmlcov/
 .pytest_cache/
 junitxml/
 reports/
+
+# === Кеші для IDE ===
+.idea/
+.vscode/
+*.iml
+
+# === Системні файли ===
+.DS_Store
+Thumbs.db
