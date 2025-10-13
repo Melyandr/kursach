@@ -1,0 +1,65 @@
+# ===  Django / Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.py.class
+*.log
+*.pot
+*.pyproj
+*.sublime-project
+*.sublime-workspace
+
+# Віртуальне середовище
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+
+# SQLite база (якщо використовуєш)
+db.sqlite3
+db.sqlite3-journal
+
+# Статичні файли Django
+/static/
+staticfiles/
+media/
+
+# Налаштування/секрети
+*.env
+.env.local
+.env.development.local
+.env.production.local
+
+# Кеш і тимчасові файли
+*.cache
+*.bak
+*.swp
+*.tmp
+*.pid
+
+# === ⚛️ React / Node.js ===
+frontend/node_modules/
+frontend/build/
+frontend/.env
+frontend/.pnp
+frontend/.pnp.js
+frontend/package-lock.json
+frontend/yarn-error.log
+
+# Кеші для IDE
+.idea/
+.vscode/
+*.iml
+
+# Системні файли
+.DS_Store
+Thumbs.db
+
+# === 🧪 Тести / Coverage ===
+.coverage
+htmlcov/
+.pytest_cache/
+junitxml/
+reports/

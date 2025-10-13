@@ -26,7 +26,9 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from django.conf import settings
-from ..core.views import ArticleViewSet, CommentViewSet, SubscriptionViewSet, NotificationViewSet
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from ..core.views import ArticleViewSet, CommentViewSet, SubscriptionViewSet, NotificationViewSet, current_user
 
 router = DefaultRouter()
 router.register(r'articles', ArticleViewSet)
@@ -37,6 +39,9 @@ router.register(r'notifications', NotificationViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/user/', current_user),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
