@@ -28,13 +28,16 @@ from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from ..core.views import ArticleViewSet, CommentViewSet, SubscriptionViewSet, NotificationViewSet, current_user
+from ..core.views import ArticleViewSet, CommentViewSet, SubscriptionViewSet, NotificationViewSet, current_user, \
+    ChannelViewSet
 
 router = DefaultRouter()
 router.register(r'articles', ArticleViewSet)
 router.register(r'comments', CommentViewSet)
 router.register(r'subscriptions', SubscriptionViewSet)
 router.register(r'notifications', NotificationViewSet)
+router.register(r"channels", ChannelViewSet, basename="channel")
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -42,6 +45,7 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/user/', current_user),
+    path("", include(router.urls)),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

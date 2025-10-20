@@ -5,6 +5,13 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 
+class Profile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
+    is_premium = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} profile"
+
 class Article(models.Model):
     TYPE_CHOICES = [
         ('standard', 'Звичайна'),
@@ -37,6 +44,13 @@ class Article(models.Model):
     image = models.ImageField(upload_to='articles/', blank=True, null=True)
     notified = models.BooleanField(default=False)  # використовуємо, щоб не дублювати нотифікації
 
+    channel = models.ForeignKey(
+        "Channel",
+        on_delete=models.CASCADE,
+        related_name="articles",
+        null=True,
+        blank=True
+    )
     class Meta:
         ordering = ['-publish_date', '-created_at']
 
@@ -65,28 +79,27 @@ class Comment(models.Model):
         return f'Comment by {self.user} on {self.article}'
 
 
-class Subscription(models.Model):
-    TIER_CHOICES = [
-        ('free', 'Безкоштовна'),
-        ('premium', 'Преміум'),
-    ]
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='subscriptions')
-    tier = models.CharField(max_length=20, choices=TIER_CHOICES, default='free')
-    started_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField(null=True, blank=True)
-    active = models.BooleanField(default=True)
-    provider = models.CharField(max_length=100, blank=True)  # наприклад Stripe
-    provider_payment_id = models.CharField(max_length=255, blank=True)
+# from django.contrib.auth.models import User
 
-    def is_active(self):
-        if not self.active:
-            return False
-        if self.expires_at and timezone.now() > self.expires_at:
-            return False
-        return True
+class Channel(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.user} - {self.tier}'
+        return self.name
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE, null=True, blank=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "channel")
+
+    def __str__(self):
+        return f"{self.user.username} → {self.channel.name}"
 
 
 class Notification(models.Model):

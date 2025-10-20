@@ -97,12 +97,14 @@ import {
   Route,
 } from "react-router-dom";
 
+
 import Navbar from "./pages/Navbar";
 import Home from "./pages/Home";
 import ArticlesPage from "./pages/ArticlesPage";
 import LoginPage from "./pages/LoginPage";
 import CreateArticlePage from "./pages/CreateArticlePage";
 import EditArticlePage from "./pages/EditArticlePage";
+import Subscriptions from './pages/Subscriptions';
 
 function App() {
   return (
@@ -114,6 +116,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/create-article" element={<CreateArticlePage />} />
         <Route path="/edit-article/:id" element={<EditArticlePage />} />
+        <Route path="/subscriptions" element={<Subscriptions />} />
+
       </Routes>
     </Router>
   );

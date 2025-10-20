@@ -1,0 +1,56 @@
+.subscriptions-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.channel-list {
+  list-style: none;
+  padding: 0;
+}
+
+.channel-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafafa;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  transition: 0.2s;
+}
+
+.channel-item:hover {
+  background: #f0f0f0;
+}
+
+.channel-name {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.subscribe-btn {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.subscribe-btn.subscribe {
+  background: #2ecc71;
+  color: white;
+}
+
+.subscribe-btn.unsubscribe {
+  background: #e74c3c;
+  color: white;
+}
+
+.back-btn {
+  margin-bottom: 15px;
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  font-size: 16px;
+}

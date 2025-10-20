@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from django.contrib import admin
-from ..articles.models import Article, Comment, Subscription, Notification
+from ..articles.models import Article, Comment, Subscription, Notification, Profile, Channel
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
@@ -11,6 +11,13 @@ class ArticleAdmin(admin.ModelAdmin):
     list_filter = ('status', 'category', 'type')
     search_fields = ('title', 'content')
 
+
+
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "is_premium")
+    list_editable = ("is_premium",)
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('article', 'user', 'created_at', 'moderated')
@@ -19,3 +26,4 @@ class CommentAdmin(admin.ModelAdmin):
 
 admin.site.register(Subscription)
 admin.site.register(Notification)
+admin.site.register(Channel)
