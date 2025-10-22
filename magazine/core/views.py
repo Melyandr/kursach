@@ -39,6 +39,17 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         # Для POST/PUT/DELETE — лише staff користувачам
         return request.user and request.user.is_staff
 
+    def has_object_permission(self, request, view, obj):
+        # Дозволяємо GET, HEAD, OPTIONS для всіх
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Адмін може все
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+
+        # Автор може видалити або редагувати власний коментар
+        return obj.user == request.user
 # class ArticleViewSet(viewsets.ModelViewSet):
 #     queryset = Article.objects.all()
 #     serializer_class = ArticleSerializer
@@ -165,9 +176,22 @@ class ArticleViewSet(viewsets.ModelViewSet):
 
         serializer = ArticleSerializer(qs.order_by("-created_at"), many=True)
         return Response(serializer.data)
+
+
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = Comment.objects.all()
+        article_id = self.request.query_params.get('article')
+        if article_id:
+            queryset = queryset.filter(article_id=article_id)
+        return queryset.order_by('-created_at')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 class SubscriptionViewSet(viewsets.ModelViewSet):
     queryset = Subscription.objects.all()
@@ -178,37 +202,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
 
 
-# class ChannelViewSet(viewsets.ModelViewSet):
-#     queryset = Channel.objects.all()
-#     serializer_class = ChannelSerializer
-#     permission_classes = [IsAuthenticatedOrReadOnly]
-#
-#     def get_serializer_context(self):
-#         context = super().get_serializer_context()
-#         context.update({"request": self.request})
-#         return context
-#
-#     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticatedOrReadOnly])
-#     def subscribe(self, request, pk=None):
-#         channel = self.get_object()
-#         Subscription.objects.get_or_create(user=request.user, channel=channel)
-#         return Response({"status": "subscribed"}, status=status.HTTP_200_OK)
-#
-#     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticatedOrReadOnly])
-#     def unsubscribe(self, request, pk=None):
-#         channel = self.get_object()
-#         Subscription.objects.filter(user=request.user, channel=channel).delete()
-#         return Response({"status": "unsubscribed"}, status=status.HTTP_200_OK)
-#
-#     @action(detail=True, methods=['get'])
-#     def articles(self, request, pk=None):
-#         channel = self.get_object()
-#
-#         # Статті конкретного каналу
-#         articles = Article.objects.filter(channel=channel, status='published')
-#
-#         serializer = ArticleSerializer(articles, many=True)
-#         return Response(serializer.data)
+
 class ChannelViewSet(viewsets.ModelViewSet):
     queryset = Channel.objects.all()
     serializer_class = ChannelSerializer

@@ -88,3 +88,40 @@
 .delete-btn:hover {
   opacity: 0.85;
 }
+.comments-toggle-btn {
+  background: #eef;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+.comments-section {
+  background: #f9f9f9;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 8px;
+}
+
+.comment {
+  padding: 4px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.add-comment textarea {
+  width: 100%;
+  margin-top: 8px;
+  border-radius: 6px;
+  padding: 6px;
+}
+
+.add-comment button {
+  margin-top: 6px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}

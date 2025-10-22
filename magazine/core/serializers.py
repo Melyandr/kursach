@@ -8,6 +8,8 @@ class ArticleSerializer(serializers.ModelSerializer):
         read_only_fields = ["author"]
 
 class CommentSerializer(serializers.ModelSerializer):
+    user_username = serializers.CharField(source='user.username', read_only=True)
+
     class Meta:
         model = Comment
         fields = '__all__'
