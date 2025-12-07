@@ -1,0 +1,35 @@
+/* Create Poll Page Styles - Using shared styles from CreateArticlesAdmin.css */
+
+.choices-section {
+  margin-top: var(--spacing-md);
+}
+
+.choices-section > label {
+  margin-bottom: var(--spacing-sm);
+  display: block;
+}
+
+.choice-row {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  align-items: center;
+}
+
+.choice-row .input {
+  flex: 1;
+  margin: 0;
+}
+
+.choice-row button {
+  flex-shrink: 0;
+  min-width: 40px;
+  padding: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.choices-section > .btn-secondary {
+  margin-top: var(--spacing-sm);
+}

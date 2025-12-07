@@ -1,80 +1,22 @@
-//import React, { useEffect, useState } from "react";
+//import React from "react";
 //import {
 //  BrowserRouter as Router,
 //  Routes,
 //  Route,
-//  Link,
-//  useNavigate,
 //} from "react-router-dom";
 //
+//import SavedPage from "./pages/SavedPage";
+//import Navbar from "./pages/Navbar";
 //import Home from "./pages/Home";
 //import ArticlesPage from "./pages/ArticlesPage";
 //import LoginPage from "./pages/LoginPage";
 //import CreateArticlePage from "./pages/CreateArticlePage";
-//import "./styles/navbar.css";
 //import EditArticlePage from "./pages/EditArticlePage";
-//
-//function Navbar() {
-//  const navigate = useNavigate();
-////  const token = localStorage.getItem("token");
-//  const [isAdmin, setIsAdmin] = useState(false);
-//  const [token, setToken] = useState(localStorage.getItem("token"));
-//
-//useEffect(() => {
-//  const fetchUser = async () => {
-//    if (!token) return;
-//    try {
-//      const res = await fetch("http://127.0.0.1:8000/api/user/", {
-//        headers: { Authorization: `Bearer ${token}` },
-//      });
-//      const data = await res.json();
-//      setIsAdmin(data.is_staff || data.is_superuser);
-//    } catch (error) {
-//      console.error("Помилка отримання користувача:", error);
-//    }
-//  };
-//  fetchUser();
-//}, [token]);
-//
-//const handleLogout = () => {
-//  localStorage.removeItem("token");
-//  localStorage.removeItem("refresh");
-//  setToken(null);
-//  setIsAdmin(false);
-//  navigate("/login");
-//};
-//
-//  return (
-//    <nav className="navbar">
-//      <div className="navbar-left">
-//        <Link to="/" className="nav-logo">
-//          Мій журнал
-//        </Link>
-//        <Link to="/category/news">Новини</Link>
-//        <Link to="/category/sport">Спорт</Link>
-//        <Link to="/category/fashion">Мода</Link>
-//        <Link to="/category/subscriptions">Підписки</Link>
-//
-//        {/*  Показуємо лише якщо адмін */}
-//        {isAdmin && <Link to="/create-article">Створити статтю</Link>}
-//      </div>
-//
-//      <div className="navbar-right">
-//        {token ? (
-//          <button onClick={handleLogout} className="logout-btn">
-//            Вийти
-//          </button>
-//        ) : (
-//          <Link to="/login" className="login-btn">
-//            Увійти
-//          </Link>
-//        )}
-//      </div>
-//    </nav>
-//  );
-//}
+//import Subscriptions from './pages/Subscriptions';
+//import CreateArticleChannelPage from './pages/CreateArticleChannelPage';
 //
 //function App() {
+//const token = localStorage.getItem("token");
 //  return (
 //    <Router>
 //      <Navbar />
@@ -84,29 +26,70 @@
 //        <Route path="/login" element={<LoginPage />} />
 //        <Route path="/create-article" element={<CreateArticlePage />} />
 //        <Route path="/edit-article/:id" element={<EditArticlePage />} />
+//        <Route path="/subscriptions" element={<Subscriptions />} />
+//        <Route path="/saved" element={<SavedPage token={token} />} />
+//        <Route path="/channels/:id/create" element={<CreateArticleChannelPage />} />
 //      </Routes>
 //    </Router>
 //  );
 //}
 //
 //export default App;
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
 } from "react-router-dom";
 
-
+import CreatePollPage from "./pages/CreatePollPage";
+import SavedPage from "./pages/SavedPage";
 import Navbar from "./pages/Navbar";
 import Home from "./pages/Home";
 import ArticlesPage from "./pages/ArticlesPage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import CreateArticlePage from "./pages/CreateArticlePage";
 import EditArticlePage from "./pages/EditArticlePage";
 import Subscriptions from './pages/Subscriptions';
+import CreateArticleChannelPage from './pages/CreateArticleChannelPage';
+import AdminUserManagementPage from "./pages/AdminUserManagementPage";
+import ChannelContentPage from "./pages/ChannelContentPage";
+import Notifications from "./pages/Notifications"
 
 function App() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+const token = localStorage.getItem("token");
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (!token) return setCurrentUser(null);
+
+  fetch("http://127.0.0.1:8000/api/user/", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("token invalid");
+      }
+      return res.json();
+    })
+    .then((data) => {
+      setCurrentUser(data);
+      setIsAdmin(data.is_staff);
+    })
+    .catch((err) => {
+      console.warn("current_user fetch failed:", err);
+      localStorage.removeItem("token");
+      localStorage.removeItem("refresh");
+      setCurrentUser(null);
+    });
+}, []);
+
+console.log(currentUser, isAdmin);
+
   return (
     <Router>
       <Navbar />
@@ -114,13 +97,21 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/category/:category" element={<ArticlesPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/create-article" element={<CreateArticlePage />} />
         <Route path="/edit-article/:id" element={<EditArticlePage />} />
         <Route path="/subscriptions" element={<Subscriptions />} />
-
+        <Route path="/saved" element={<SavedPage token={token} />} />
+        <Route path="/channels/:id/create" element={<CreateArticleChannelPage />} />
+        <Route path="/create-poll" element={<CreatePollPage />} />
+        <Route path="/channels/:id" element={<ChannelContentPage />} />
+        <Route path="/admin/users" element={<AdminUserManagementPage />} />
+        <Route path="/notifications" element={<Notifications />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
+
+

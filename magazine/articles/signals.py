@@ -1,40 +1,57 @@
+# from django.db.models.signals import post_save
+# from django.dispatch import receiver
+# from django.contrib.auth import get_user_model
+#
+# from .models import Article, Notification
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.contrib.auth import get_user_model
 
-from django.conf import settings
-from . import settings
-from .models import Article, Notification, Profile
+from .models import Subscription, Article, Notification, Poll
 
-User = get_user_model()
+
+# User = get_user_model()
+
 
 @receiver(post_save, sender=Article)
-def article_post_save(sender, instance: Article, created, **kwargs):
-    # якщо стаття опублікована і ще не відправляли нотифікації
-    if instance.status == 'published' and not instance.notified:
-        # приклад: надсилаємо всім активним користувачам
-        users = User.objects.filter(is_active=True)
-        for user in users:
-            # при бажанні фільтруй лише преміум-підписників:
-            # subs = user.subscriptions.filter(active=True).first()
-            # if instance.is_premium and (not subs or not subs.is_active()): continue
+def create_notifications_for_article(sender, instance, created, **kwargs):
+    if not created or not instance.channel:
+        return
 
-            Notification.objects.create(
-                user=user,
-                text=f"Нова стаття: {instance.title}",
-                link=f"/articles/{instance.slug}/"
-            )
+    # беремо тільки активних користувачів, які підписані на канал
+    subscribers = Subscription.objects.filter(
+        channel=instance.channel,
+        user__is_active=True
+    ).select_related('user')
 
-        # позначаємо, що нотифікації вже створено
-        instance.notified = True
-        instance.save(update_fields=['notified'])
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
+    seen_users = set()
+    for sub in subscribers:
+        if sub.user_id in seen_users:
+            continue
+        seen_users.add(sub.user_id)
+        Notification.objects.create(
+            user=sub.user,
+            text=f"Нова стаття в каналі {instance.channel.name}: {instance.title}",
+            link=f"/channels/{instance.channel.id}/articles/{instance.id}/",
+            channel_name=instance.channel.name
+        )
 
 
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+from ..core.observer import NotificationObserver
+from ..core.subjects import PollSubject
+
+@receiver(post_save, sender=Poll)
+def poll_post_save(sender, instance, created, **kwargs):
+    if not created:
+        return
+
+    # Створюємо Subject
+    poll_subject = PollSubject(instance)
+
+    # Додаємо Observer для кожного підписника
+    subs = Subscription.objects.filter(channel=instance.channel)
+    for s in subs:
+        observer = NotificationObserver(s.user)
+        poll_subject.attach(observer)
+
+    # Повідомляємо всіх спостерігачів
+    poll_subject.notify()

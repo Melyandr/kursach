@@ -28,8 +28,11 @@ from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from ..core.serializers import UserNotificationsView
 from ..core.views import ArticleViewSet, CommentViewSet, SubscriptionViewSet, NotificationViewSet, current_user, \
-    ChannelViewSet
+    ChannelViewSet, SavedArticleViewSet, PollViewSet, UserViewSet, ChannelPollListView, UserMeView, \
+    RegisterView, EmailLoginView, UserManagementViewSet
+from ..core.views import CreateContentView
 
 router = DefaultRouter()
 router.register(r'articles', ArticleViewSet)
@@ -37,6 +40,10 @@ router.register(r'comments', CommentViewSet)
 router.register(r'subscriptions', SubscriptionViewSet)
 router.register(r'notifications', NotificationViewSet)
 router.register(r"channels", ChannelViewSet, basename="channel")
+router.register(r'saved', SavedArticleViewSet, basename='saved')
+router.register(r'polls', PollViewSet, basename='polls')
+router.register(r'users', UserViewSet, basename='user')
+router.register(r'admin/users', UserManagementViewSet, basename='admin-users')
 
 
 urlpatterns = [
@@ -44,8 +51,17 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/login/', EmailLoginView.as_view(), name='email-login'),
+    path('api/register/', RegisterView.as_view(), name='register'),
+
     path('api/user/', current_user),
+    path('api/users/me/', UserMeView.as_view(), name='user-me'),
+
     path("", include(router.urls)),
+    path('channels/<int:id>/polls/', ChannelPollListView.as_view(), name='channel-polls'),
+
+    path("api/content/create/", CreateContentView.as_view(), name="create-content"),
+    path("api/my-notifications/", UserNotificationsView.as_view(), name="my-notifications"),
 
 ]
 if settings.DEBUG:

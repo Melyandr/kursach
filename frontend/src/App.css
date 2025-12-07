@@ -1,61 +1,39 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
-}
+/* App-level styles - using design system */
 
-.container {
+.app-container {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 }
 
-.header {
-  background: #333;
-  color: white;
-  padding: 20px;
-  text-align: center;
-}
-
-.header nav {
-  margin-top: 10px;
-}
-
-.header nav a {
-  color: white;
-  margin: 0 10px;
-  text-decoration: none;
-}
-
-.header nav a:hover {
-  text-decoration: underline;
-}
-
-.content {
+.main-content {
   flex: 1;
-  padding: 20px;
+  padding: var(--spacing-lg);
 }
 
 .article {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base);
+}
+
+.article:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .article h2 {
   margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
 }
 
 .article-img {
   width: 100%;
-  border-radius: 10px;
-  margin-top: 10px;
-}
-
-.footer {
-  background: #333;
-  color: white;
-  text-align: center;
-  padding: 15px;
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-md);
+  object-fit: cover;
 }

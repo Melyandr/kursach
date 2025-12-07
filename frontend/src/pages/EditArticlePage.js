@@ -58,6 +58,7 @@ const handleUpdate = async (e) => {
       <form onSubmit={handleUpdate} className="create-article-form">
         <label>Заголовок</label>
         <input
+          className="input"
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -66,6 +67,7 @@ const handleUpdate = async (e) => {
 
         <label>Текст статті</label>
         <textarea
+          className="input create-article-textarea"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           required
@@ -73,6 +75,7 @@ const handleUpdate = async (e) => {
 
         <label>Категорія</label>
         <input
+          className="input"
           type="text"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
@@ -92,12 +95,13 @@ const handleUpdate = async (e) => {
           />
         )}
         <input
+          className="input"
           type="file"
           accept="image/*"
           onChange={(e) => setImage(e.target.files[0])}
         />
 
-        <button type="submit">💾 Зберегти зміни</button>
+        <button className="btn btn-primary" type="submit">💾 Зберегти зміни</button>
       </form>
     </div>
   );
