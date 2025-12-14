@@ -28,9 +28,7 @@ from rest_framework import viewsets
 from .serializers import ArticleSerializer
 
 
-# class ArticleViewSet(viewsets.ModelViewSet):
-#     queryset = Article.objects.all()
-#     serializer_class = ArticleSerializer
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def current_user(request):
@@ -45,14 +43,14 @@ def current_user(request):
 
 class IsOwnerOrAdmin(permissions.BasePermission):
     """
-    Дозволяє редагувати/видаляти лише власнику або адміну.
+    Дозволяє видаляти лише адміну.
     """
 
     def has_object_permission(self, request, view, obj):
-        # Якщо користувач - адміністратор
+
         if request.user.is_staff:
             return True
-        # Якщо користувач є автором коментаря
+
         return obj.user == request.user
 
 
@@ -86,33 +84,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         return request.user and request.user.is_staff
 
 
-# class ArticleViewSet(viewsets.ModelViewSet):
-#     queryset = Article.objects.all()
-#     serializer_class = ArticleSerializer
-#     permission_classes = [IsAuthenticatedOrReadOnly]
-#
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#         queryset = queryset.exclude(type="interactive")
-#
-#         category = self.request.query_params.get("category")
-#         if category:
-#             queryset = queryset.filter(category__iexact=category)
-#
-#         return queryset.order_by("-id")
-#
-#     def perform_create(self, serializer):
-#         """
-#         Викликається при POST /api/articles/
-#         Тепер фабрика отримує self.request, щоб мати доступ до request.FILES
-#         """
-#         factory = ArticleFactory()
-#         try:
-#             article = factory.create(self.request, self.request.user)
-#         except ValidationError as e:
-#             # піднімаємо DRF ValidationError, щоб клієнт отримав детальну відповідь
-#             raise serializers.ValidationError({"detail": str(e)})
-#         serializer.instance = article
+
 class ArticleViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
@@ -315,55 +287,7 @@ class SavedArticleViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError("Ця стаття вже збережена.")
 
 
-# class PollListView(generics.ListCreateAPIView):
-#     queryset = Poll.objects.all()
-#     serializer_class = PollSerializer
-#     permission_classes = [IsAuthenticatedOrReadOnly]
 
-
-# class PollVoteView(generics.GenericAPIView):
-#     permission_classes = [IsAuthenticatedOrReadOnly]
-#
-#     def post(self, request, poll_id, choice_id):
-#         poll = Poll.objects.get(id=poll_id)
-#         choice = Choice.objects.get(id=choice_id, poll=poll)
-#
-#         # перевіряємо чи вже голосував
-#         vote, created = Vote.objects.get_or_create(
-#             poll=poll,
-#             user=request.user,
-#             defaults={'choice': choice}
-#         )
-#         if not created:
-#             return Response({'error': 'Ви вже голосували в цьому опитуванні!'}, status=status.HTTP_400_BAD_REQUEST)
-#
-#         choice.votes += 1
-#         choice.save()
-#         return Response({'message': 'Голос зараховано!'})
-
-
-# class PollViewSet(viewsets.ModelViewSet):
-#     queryset = Poll.objects.all().order_by("-created_at")
-#     serializer_class = PollCreateSerializer
-#     permission_classes = [IsAdminOrReadOnly]
-#
-#     def get_serializer_class(self):
-#         # для GET використовуємо той же серіалізатор (він містить поле choices write-only).
-#         return PollCreateSerializer
-#
-#     @action(detail=True, methods=['post'], url_path='vote/(?P<choice_id>[^/.]+)')
-#     def vote(self, request, pk=None, choice_id=None):
-#         poll = self.get_object()
-#         choice = Choice.objects.get(id=choice_id, poll=poll)
-#
-#         # перевіряємо, чи вже голосував
-#         if Vote.objects.filter(user=request.user, poll=poll).exists():
-#             return Response({'error': 'Ви вже голосували'}, status=status.HTTP_400_BAD_REQUEST)
-#
-#         Vote.objects.create(user=request.user, poll=poll, choice=choice)
-#         choice.votes += 1
-#         choice.save()
-#         return Response({'message': 'Голос зараховано!', 'choice_votes': choice.votes})
 
 class PollViewSet(viewsets.ModelViewSet):
     queryset = Poll.objects.all().order_by("-created_at")
@@ -382,7 +306,7 @@ class PollViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context["request"] = self.request  # ✅ додаємо користувача до контексту
+        context["request"] = self.request  #  додаємо користувача до контексту
         return context
 
     @action(detail=True, methods=['post'], url_path='vote/(?P<choice_id>[^/.]+)')
@@ -413,7 +337,7 @@ class PollCreateView(generics.CreateAPIView):
 
 
 class CreateContentView(APIView):
-    permission_classes = [IsAuthenticated, IsAdminUser]  # тільки адміністратор; підлаштуй якщо треба
+    permission_classes = [IsAuthenticated, IsAdminUser]  # тільки адміністратор
 
     def post(self, request, *args, **kwargs):
         # Get content type from request

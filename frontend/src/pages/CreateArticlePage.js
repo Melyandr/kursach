@@ -60,7 +60,7 @@ if (articleType === "standard") {
   formData.append("is_premium", isPremium);
 } else {
   if (!selectedChannel) {
-    setMessage("❌ Будь ласка, оберіть канал для статті");
+    setMessage(" Будь ласка, оберіть канал для статті");
     return;
   }
   // Важливо: відправляємо числове значення channel
@@ -81,7 +81,7 @@ try {
     throw new Error(text);
   }
 
-  setMessage("✅ Статтю успішно створено!");
+  setMessage(" Статтю успішно створено!");
   setTitle("");
   setContent("");
   setExcerpt("");
@@ -91,7 +91,7 @@ try {
   setImage(null);
 } catch (err) {
   console.error("Помилка створення:", err);
-  setMessage("❌ Не вдалося створити статтю");
+  setMessage(" Не вдалося створити статтю");
 }
 
 

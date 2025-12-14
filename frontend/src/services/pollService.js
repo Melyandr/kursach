@@ -23,4 +23,4 @@ export async function createPoll({ question, channelId, choices }, token) {
   return res.json();
 }
 
-// Додаткові методи для роботи з опитуваннями можна додати тут
+
