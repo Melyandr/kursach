@@ -14,6 +14,11 @@ function ArticlesPage() {
   const [currentUser, setCurrentUser] = useState(null); // {id, isAdmin}
   const [loading, setLoading] = useState(true);
 
+const titles = {
+  news: "Новини",
+  sport: "Спорт",
+  fashion: "Мода"
+};
   // === Завантажуємо збережені статті ===
   useEffect(() => {
     if (!token) return;
@@ -30,7 +35,7 @@ function ArticlesPage() {
     const fetchUserAndArticles = async () => {
       let userData = null;
 
-      // 1️⃣ Завантажуємо користувача
+      //  Завантажуємо користувача
       if (token) {
         try {
           const res = await fetch("http://127.0.0.1:8000/api/user/", {
@@ -50,7 +55,7 @@ function ArticlesPage() {
         }
       }
 
-      // 2️⃣ Завантажуємо статті
+      //  Завантажуємо статті
       try {
         const res = await fetch(
           `http://127.0.0.1:8000/api/articles/?category=${category}`,
@@ -63,7 +68,7 @@ function ArticlesPage() {
         );
         let articlesData = await res.json();
 
-        // 3️⃣ Фільтруємо статті для звичайного користувача
+        //  Фільтруємо статті для звичайного користувача
         const isPrivilegedUser =
           userData && (userData.is_staff || userData.is_superuser || userData.is_premium);
 
@@ -145,7 +150,7 @@ function ArticlesPage() {
 
   return (
     <div className="articles-container">
-      <h2>{category.toUpperCase()}</h2>
+      <h2>{titles[category] || category.toUpperCase()}</h2>
       {articles.length === 0 ? (
         <p>Немає статей у цій категорії.</p>
       ) : (

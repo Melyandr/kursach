@@ -37,7 +37,7 @@ class Article(models.Model):
     slug = models.SlugField(max_length=255, null=True, blank=True)
     content = models.TextField(blank=True, null=True)
     excerpt = models.TextField(blank=True, null=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='articles')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL,null=True, blank=True, on_delete=models.SET_NULL, related_name='articles')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     publish_date = models.DateTimeField(null=True, blank=True)
@@ -45,7 +45,6 @@ class Article(models.Model):
     type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='standard')
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='tech')
     is_premium = models.BooleanField(default=False)  # чи потрібна преміум-локація для цієї статті
-    # image_url = models.URLField(blank=True, null=True)
     image = models.ImageField(upload_to='articles/', blank=True, null=True)
     notified = models.BooleanField(default=False)  # використовуємо, щоб не дублювати нотифікації
 
@@ -132,15 +131,6 @@ class SavedArticle(models.Model):
         unique_together = ('user', 'article')  # не дозволяє дублікати
 
 
-# class Poll(models.Model):
-#     question = models.CharField(max_length=255)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#
-#     def total_votes(self):
-#         return sum(choice.votes for choice in self.choices.all())
-#
-#     def __str__(self):
-#         return self.question
 class Poll(models.Model):
     question = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -148,8 +138,8 @@ class Poll(models.Model):
         "Channel",
         on_delete=models.CASCADE,
         related_name="polls",
-        null=True,
-        blank=True
+        null=False,
+        blank=False
     )
 
     def total_votes(self):
@@ -176,17 +166,3 @@ class Vote(models.Model):
     class Meta:
         unique_together = ('poll', 'user')
 
-# @receiver(post_save, sender=Article)
-# def create_notifications_for_article(sender, instance, created, article=None, **kwargs):
-#     if not created:
-#         return
-#
-#     # всі підписані на канал
-#     subs = Subscription.objects.filter(channel=instance.channel)
-#
-#     for s in subs:
-#             Notification.objects.create(
-#                 user=s.user,
-#                 text=f"Нова стаття у каналі {instance.channel.name}: {instance.title}",
-#                 link=f"/articles/{instance.id}"
-#             )
