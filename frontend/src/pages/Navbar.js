@@ -63,7 +63,7 @@ function Navbar() {
       <div className="navbar-right">
         {token ? (
           <>
-            {isAdmin && <Link to="/admin/users">Управління користувачами</Link>}
+            {isAdmin && <Link to="/admin/users">Користувачі</Link>}
             <button onClick={handleLogout} className="logout-btn">
               Вийти
             </button>

@@ -131,50 +131,6 @@ class InteractiveArticleFactory(BaseContentFactory):
         return article
 
 
-# class PollFactory(BaseContentFactory):
-#     """
-#     Factory for creating polls with choices.
-#     Handles poll creation with multiple choice options.
-#     """
-#
-#     def create(self, request, user):
-#         data = request.data
-#
-#         # Validate required fields
-#         question = data.get("question")
-#         if not question:
-#             raise ValidationError("Питання опитування обов'язкове")
-#
-#         choices_data = data.get("choices", [])
-#         if not choices_data or len(choices_data) < 2:
-#             raise ValidationError("Опитування має містити принаймні 2 варіанти відповіді")
-#
-#         # Get optional channel
-#         channel_obj = None
-#         channel_id = data.get("channel")
-#         if channel_id:
-#             try:
-#                 channel_obj = Channel.objects.get(pk=int(channel_id))
-#             except (Channel.DoesNotExist, ValueError, TypeError):
-#                 raise ValidationError("Канал не знайдено")
-#
-#         # Create poll
-#         poll = Poll.objects.create(
-#             question=question,
-#             channel=channel_obj,
-#         )
-#
-#         # Create choices
-#         for choice_text in choices_data:
-#             if not choice_text or not choice_text.strip():
-#                 continue
-#             Choice.objects.create(
-#                 poll=poll,
-#                 text=choice_text.strip(),
-#                 votes=0
-#             )
-#
-#         return poll
 
 
 def get_factory(content_type: str) -> BaseContentFactory:
