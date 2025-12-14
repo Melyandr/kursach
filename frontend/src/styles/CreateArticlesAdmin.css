@@ -1,86 +1,92 @@
-/* Загальний контейнер */
+/* Create Article Container */
 .create-article-container {
-max-width: 800px;
-margin: 50px auto;
-padding: 30px;
-background-color: #ffffff;
-border-radius: 16px;
-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-font-family: 'Inter', sans-serif;
+  max-width: 800px;
+  margin: var(--spacing-xl) auto;
+  padding: var(--spacing-xl);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
 }
 
-/* Заголовок сторінки */
+/* Page Title */
 .create-article-title {
-font-size: 28px;
-font-weight: 600;
-color: #333;
-margin-bottom: 25px;
-text-align: center;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
 }
 
-/* Форма */
+/* Form */
 .create-article-form {
-display: flex;
-flex-direction: column;
-gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
-/* Поля введення */
+/* Input Fields */
 .create-article-input,
 .create-article-textarea,
 .create-article-select {
-width: 100%;
-padding: 5px 5px;
-border: 1px solid #ddd;
-border-radius: 8px;
-font-size: 16px;
-transition: all 0.2s ease;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .create-article-input:focus,
 .create-article-textarea:focus,
 .create-article-select:focus {
-border-color: #007bff;
-outline: none;
-box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* Текстова область */
 .create-article-textarea {
-resize: vertical;
-min-height: 150px;
+  resize: vertical;
+  min-height: 150px;
 }
 
-/* Кнопка */
+/* Button */
 .create-article-button {
-background-color: #007bff;
-color: white;
-font-size: 17px;
-padding: 12px 0;
-border: none;
-border-radius: 8px;
-cursor: pointer;
-transition: background-color 0.25s ease;
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-md) 0;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
 }
 
 .create-article-button:hover {
-background-color: #0056b3;
+  background-color: var(--color-primary-hover);
 }
 
-/* Повідомлення про успіх / помилку */
+/* Messages */
 .create-article-message {
-text-align: center;
-font-size: 16px;
-padding: 10px;
-border-radius: 8px;
+  text-align: center;
+  font-size: var(--font-size-base);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-md);
 }
 
 .create-article-message.success {
-background-color: #e6f7e6;
-color: #2e7d32;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
 }
 
 .create-article-message.error {
-background-color: #fdecea;
-color: #c62828;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
 }

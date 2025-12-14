@@ -1,16 +1,21 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
 
-class Profile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
+
+class User(AbstractUser):
+    """
+    Custom User model that extends Django's AbstractUser.
+    Adds is_premium field for premium user status.
+    """
     is_premium = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"{self.user.username} profile"
+    class Meta:
+        db_table = 'auth_user'
+
 
 class Article(models.Model):
     TYPE_CHOICES = [
@@ -29,8 +34,8 @@ class Article(models.Model):
     ]
 
     title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
-    content = models.TextField()
+    slug = models.SlugField(max_length=255, null=True, blank=True)
+    content = models.TextField(blank=True, null=True)
     excerpt = models.TextField(blank=True, null=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='articles')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -51,6 +56,7 @@ class Article(models.Model):
         null=True,
         blank=True
     )
+
     class Meta:
         ordering = ['-publish_date', '-created_at']
 
@@ -108,9 +114,79 @@ class Notification(models.Model):
     link = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
+    channel_name = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         ordering = ['-created_at']
 
     def __str__(self):
         return f'Notification to {self.user}: {self.text[:30]}'
+
+
+class SavedArticle(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="saved_articles")
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="saved_by")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'article')  # не дозволяє дублікати
+
+
+# class Poll(models.Model):
+#     question = models.CharField(max_length=255)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#
+#     def total_votes(self):
+#         return sum(choice.votes for choice in self.choices.all())
+#
+#     def __str__(self):
+#         return self.question
+class Poll(models.Model):
+    question = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    channel = models.ForeignKey(
+        "Channel",
+        on_delete=models.CASCADE,
+        related_name="polls",
+        null=True,
+        blank=True
+    )
+
+    def total_votes(self):
+        return sum(choice.votes for choice in self.choices.all())
+
+    def __str__(self):
+        return self.question
+
+
+class Choice(models.Model):
+    poll = models.ForeignKey(Poll, related_name='choices', on_delete=models.CASCADE)
+    text = models.CharField(max_length=255)
+    votes = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.text} ({self.votes} голосів)"
+
+
+class Vote(models.Model):
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('poll', 'user')
+
+# @receiver(post_save, sender=Article)
+# def create_notifications_for_article(sender, instance, created, article=None, **kwargs):
+#     if not created:
+#         return
+#
+#     # всі підписані на канал
+#     subs = Subscription.objects.filter(channel=instance.channel)
+#
+#     for s in subs:
+#             Notification.objects.create(
+#                 user=s.user,
+#                 text=f"Нова стаття у каналі {instance.channel.name}: {instance.title}",
+#                 link=f"/articles/{instance.id}"
+#             )

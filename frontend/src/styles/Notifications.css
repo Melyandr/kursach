@@ -1,0 +1,44 @@
+.notifications-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.notifications-page h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.no-notifications {
+  text-align: center;
+  color: #666;
+}
+
+.notifications-list {
+  list-style: none;
+  padding: 0;
+}
+
+.notification-item {
+  background-color: #f7f7f7;
+  border-left: 4px solid #4caf50;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+  background-color: #eaeaea;
+}
+
+.notification-text {
+  font-size: 16px;
+}
+
+.notification-date {
+  font-size: 12px;
+  color: #999;
+  margin-top: 5px;
+}

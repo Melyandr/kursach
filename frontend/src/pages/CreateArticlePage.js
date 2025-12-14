@@ -1,164 +1,190 @@
-// src/pages/CreateArticlePage.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/CreateArticlesAdmin.css";
 
-function CreateArticlePage() {
-  const [formData, setFormData] = useState({
-    title: "",
-    slug: "",
-    content: "",
-    excerpt: "",
-    status: "draft",
-    type: "standard",
-    category: "sport",
-    is_premium: false,
-    image: null,
-  });
+export default function CreateArticlePage() {
+const [mode, setMode] = useState("standard"); // standard / channel
+const [title, setTitle] = useState("");
+const [content, setContent] = useState("");
+const [excerpt, setExcerpt] = useState("");
+const [isPremium, setIsPremium] = useState(false);
+const [category, setCategory] = useState("sport");
+const [channels, setChannels] = useState([]);
+const [selectedChannel, setSelectedChannel] = useState("");
+const [image, setImage] = useState(null);
+const [message, setMessage] = useState("");
+const token = localStorage.getItem("token");
 
-  const token = localStorage.getItem("token");
-
-  const handleChange = (e) => {
-    const { name, value, type, checked, files } = e.target;
-    if (type === "checkbox") {
-      setFormData({ ...formData, [name]: checked });
-    } else if (type === "file") {
-      setFormData({ ...formData, [name]: files[0] });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => data.append(key, value));
-
+useEffect(() => {
+  const fetchChannels = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/articles/", {
-        method: "POST",
+      const res = await fetch("http://127.0.0.1:8000/api/channels/", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
-        body: data,
       });
 
-      if (res.ok) {
-        alert("✅ Статтю успішно створено!");
-        window.location.href = "/";
-      } else {
-        const err = await res.json();
-        console.error("Помилка:", err);
-        alert(`Помилка при створенні статті: ${JSON.stringify(err)}`);
+      if (!res.ok) {
+        console.error("Помилка завантаження каналів:", res.status);
+        setChannels([]);
+        return;
       }
-    } catch (error) {
-      console.error("Помилка запиту:", error);
+
+      const data = await res.json();
+      console.log("Завантажено каналів:", data);
+      setChannels(Array.isArray(data) ? data : data.results || []);
+    } catch (err) {
+      console.error("Помилка при завантаженні каналів:", err);
+      setChannels([]);
     }
   };
 
-  return (
-    <div className="create-article-container">
-      <h2 className="create-article-title">Створити нову статтю</h2>
-      <form
-        className="create-article-form"
-        onSubmit={handleSubmit}
-        encType="multipart/form-data"
-      >
-        <input
-          type="text"
-          name="title"
-          className="create-article-input"
-          placeholder="Заголовок"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="slug"
-          className="create-article-input"
-          placeholder="Slug (унікальний URL)"
-          value={formData.slug}
-          onChange={handleChange}
-          required
-        />
-        <textarea
-          name="content"
-          className="create-article-textarea"
-          placeholder="Основний текст"
-          rows="6"
-          value={formData.content}
-          onChange={handleChange}
-          required
-        />
-        <textarea
-          name="excerpt"
-          className="create-article-textarea"
-          placeholder="Короткий опис"
-          rows="3"
-          value={formData.excerpt}
-          onChange={handleChange}
-        />
+  fetchChannels();
+}, [token]);
 
-        <label>Статус:</label>
-        <select
-          name="status"
-          className="create-article-select"
-          value={formData.status}
-          onChange={handleChange}
-        >
-          <option value="draft">Чернетка</option>
-          <option value="published">Опубліковано</option>
-        </select>
+const handleSubmit = async (e) => {
+e.preventDefault();
+setMessage("");
 
-        <label>Тип:</label>
-        <select
-          name="type"
-          className="create-article-select"
-          value={formData.type}
-          onChange={handleChange}
-        >
-          <option value="standard">Звичайна</option>
-          <option value="interactive">Інтерактивна</option>
-        </select>
 
-        <label>Категорія:</label>
-        <select
-          name="category"
-          className="create-article-select"
-          value={formData.category}
-          onChange={handleChange}
-        >
-          <option value="sport">Спорт</option>
-          <option value="fashion">Мода</option>
-          <option value="News">Новини</option>
-        </select>
+const articleType = mode === "standard" ? "standard" : "interactive";
+const formData = new FormData();
 
+formData.append("title", title);
+formData.append("content", content);
+formData.append("excerpt", excerpt);
+formData.append("type", articleType);
+
+if (articleType === "standard") {
+  formData.append("category", category);
+  formData.append("is_premium", isPremium);
+} else {
+  if (!selectedChannel) {
+    setMessage("❌ Будь ласка, оберіть канал для статті");
+    return;
+  }
+  // Важливо: відправляємо числове значення channel
+  formData.append("channel", parseInt(selectedChannel));
+}
+
+if (image) formData.append("image", image);
+
+try {
+  const res = await fetch("http://127.0.0.1:8000/api/articles/", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text);
+  }
+
+  setMessage("✅ Статтю успішно створено!");
+  setTitle("");
+  setContent("");
+  setExcerpt("");
+  setIsPremium(false);
+  setCategory("sport");
+  setSelectedChannel("");
+  setImage(null);
+} catch (err) {
+  console.error("Помилка створення:", err);
+  setMessage("❌ Не вдалося створити статтю");
+}
+
+
+};
+
+return ( <div className="create-article-container"> <h2>Створити статтю</h2> <form onSubmit={handleSubmit} className="create-article-form"> <label>
+Тип статті:
+<select className="input" value={mode} onChange={(e) => setMode(e.target.value)}> <option value="standard">Звичайна стаття</option> <option value="channel">Стаття для каналу</option> </select> </label>
+
+
+    <input
+      className="input"
+      type="text"
+      placeholder="Заголовок"
+      value={title}
+      onChange={(e) => setTitle(e.target.value)}
+      required
+    />
+
+    <textarea
+      className="input create-article-textarea"
+      placeholder="Текст статті"
+      value={content}
+      onChange={(e) => setContent(e.target.value)}
+      required
+    />
+
+    <textarea
+      className="input create-article-textarea"
+      placeholder="Короткий опис"
+      value={excerpt}
+      onChange={(e) => setExcerpt(e.target.value)}
+    />
+
+    {mode === "standard" && (
+      <>
+        <label>
+          Категорія:
+          <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
+            <option value="sport">Спорт</option>
+            <option value="fashion">Мода</option>
+            <option value="News">Новини</option>
+          </select>
+        </label>
         <label>
           <input
             type="checkbox"
-            name="is_premium"
-            checked={formData.is_premium}
-            onChange={handleChange}
+            checked={isPremium}
+            onChange={(e) => setIsPremium(e.target.checked)}
           />
-          Преміум стаття
+          Преміум
         </label>
+      </>
+    )}
 
-        <label>Картинка:</label>
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          className="create-article-input"
-          onChange={handleChange}
-        />
+    {mode === "channel" && (
+        <label>
+          Виберіть канал:
+          <select
+            className="input"
+            value={selectedChannel}
+            onChange={(e) => setSelectedChannel(e.target.value)}
+            required
+          >
+          <option value="">-- Оберіть канал --</option>
+          {channels.length === 0 ? (
+            <option value="" disabled>Немає доступних каналів</option>
+          ) : (
+            channels.map((ch) => (
+              <option key={ch.id} value={ch.id}>
+                {ch.name || `Канал ${ch.id}`}
+              </option>
+            ))
+          )}
+        </select>
+        {channels.length === 0 && (
+          <small style={{ color: 'red', display: 'block', marginTop: '5px' }}>
+            Канали не завантажені. Перевірте консоль на помилки.
+          </small>
+        )}
+      </label>
+    )}
 
-        <button type="submit" className="create-article-button">
-          Створити
-        </button>
-      </form>
-    </div>
-  );
+    <label>
+      Зображення:
+      <input className="input" type="file" onChange={(e) => setImage(e.target.files[0])} />
+    </label>
+
+    <button className="btn btn-primary" type="submit">Створити</button>
+    {message && <p>{message}</p>}
+  </form>
+</div>
+
+
+);
 }
-
-export default CreateArticlePage;

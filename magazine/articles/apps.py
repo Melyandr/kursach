@@ -6,3 +6,4 @@ class ArticlesConfig(AppConfig):
 
     def ready(self):
         import magazine.articles.signals  # noqa
+

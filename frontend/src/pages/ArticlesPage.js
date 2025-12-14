@@ -1,174 +1,105 @@
-//import React, { useEffect, useState } from "react";
-//import { useParams, useNavigate } from "react-router-dom";
-//import "../styles/articles.css";
-//
-//function ArticlesPage() {
-//  const { category } = useParams();
-//  const [articles, setArticles] = useState([]);
-//  const [isAdmin, setIsAdmin] = useState(false);
-//  const navigate = useNavigate();
-//  const token = localStorage.getItem("token");
-//
-//  // Отримати, чи користувач адмін
-//  useEffect(() => {
-//    const fetchUser = async () => {
-//      if (!token) return;
-//      try {
-//        const res = await fetch("http://127.0.0.1:8000/api/user/", {
-//          headers: { Authorization: `Bearer ${token}` },
-//        });
-//        const data = await res.json();
-//        setIsAdmin(data.is_staff || data.is_superuser);
-//      } catch (err) {
-//        console.error("Помилка при отриманні користувача:", err);
-//      }
-//    };
-//    fetchUser();
-//  }, [token]);
-//
-////  // Завантаження статей
-////  useEffect(() => {
-////    fetch(`http://127.0.0.1:8000/api/articles/?category=${category}`)
-////      .then((res) => res.json())
-////      .then((data) => setArticles(data));
-////  }, [category]);
-//useEffect(() => {
-//  const fetchArticles = async () => {
-//    const token = localStorage.getItem("token");
-//
-//    const res = await fetch(`http://127.0.0.1:8000/api/articles/?category=${category}`, {
-//      headers: {
-//        "Content-Type": "application/json",
-//        ...(token && { Authorization: `Bearer ${token}` }),
-//      },
-//    });
-//
-//    const data = await res.json();
-//    setArticles(data);
-//  };
-//
-//  fetchArticles();
-//}, [category]);
-//
-//
-//const handleDelete = async (id) => {
-//  const token = localStorage.getItem("token");
-//
-//  if (!window.confirm("Видалити статтю?")) return;
-//
-//  const res = await fetch(`http://127.0.0.1:8000/api/articles/${id}/`, {
-//    method: "DELETE",
-//    headers: {
-//      Authorization: `Bearer ${token}`,
-//    },
-//  });
-//
-//  if (res.ok) {
-//    alert("✅ Статтю видалено!");
-//    // ⬇️ ось тут оновлюємо стан
-//    setArticles((prev) => prev.filter((a) => a.id !== id));
-//  } else {
-//    alert("❌ Помилка при видаленні статті");
-//  }
-//};
-//  return (
-//    <div className="articles-container">
-//      <h2 className="category-title">{category.toUpperCase()}</h2>
-//      {articles.length === 0 ? (
-//        <p>Немає статей у цій категорії.</p>
-//      ) : (
-//        <div className="articles-grid">
-//          {articles.map((a) => (
-//            <div className="article-card" key={a.id}>
-//              {a.image && (
-//                <img src={a.image} alt={a.title} className="article-image" />
-//              )}
-//              <h3>{a.title}</h3>
-//              <p>{a.excerpt || a.content.substring(0, 120) + "..."}</p>
-//              <small>
-//                {a.category} | {new Date(a.created_at).toLocaleDateString()}
-//              </small>
-//
-//              {/* Кнопки редагування / видалення тільки для адміна */}
-//              {isAdmin && (
-//                <div className="admin-controls">
-//                  <button
-//                    className="edit-btn"
-//                    onClick={() => navigate(`/edit-article/${a.id}`)}
-//                  >
-//                    ✏️ Редагувати
-//                  </button>
-//                  <button
-//                    className="delete-btn"
-//                    onClick={() => handleDelete(a.id)}
-//                  >
-//                    🗑️ Видалити
-//                  </button>
-//                </div>
-//              )}
-//            </div>
-//          ))}
-//        </div>
-//      )}
-//    </div>
-//  );
-//}
-//
-//export default ArticlesPage;
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../styles/articles.css";
-import CommentsSection from "./CommentsSection"; // <-- новий компонент
+import CommentsSection from "./CommentsSection";
 
 function ArticlesPage() {
   const { category } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
+  const [savedArticles, setSavedArticles] = useState([]);
   const [articles, setArticles] = useState([]);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [expandedArticles, setExpandedArticles] = useState({});
-  const [currentUserId, setCurrentUserId] = useState(null);
-
-useEffect(() => {
-  if (!token) return;
-  fetch("http://127.0.0.1:8000/api/user/", {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      setIsAdmin(data.is_staff || data.is_superuser);
-      setCurrentUserId(data.id);
-    })
-    .catch(console.error);
-}, [token]);
-
+  const [currentUser, setCurrentUser] = useState(null); // { id, isAdmin, isPremium }
+  const [loading, setLoading] = useState(true);
+  const CATEGORY_LABELS = {
+      sport: "Спорт",
+      news: "Новини",
+      fashion: "Мода",
+    };
+  // === Завантаження збережених статей ===
   useEffect(() => {
     if (!token) return;
-    fetch("http://127.0.0.1:8000/api/user/", {
+
+    fetch("http://127.0.0.1:8000/api/saved/", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
-      .then((data) => setIsAdmin(data.is_staff || data.is_superuser))
+      .then((data) => setSavedArticles(data.map((s) => s.article)))
       .catch(console.error);
   }, [token]);
 
+  // === Завантаження користувача + статей ===
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/api/articles/?category=${category}`, {
-      headers: {
-        "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setArticles(data))
-      .catch(console.error);
+    const fetchUserAndArticles = async () => {
+      let userData = null;
+
+      //  Користувач
+      if (token) {
+        try {
+          const res = await fetch("http://127.0.0.1:8000/api/user/", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (res.ok) {
+            userData = await res.json();
+
+            setCurrentUser({
+              id: Number(userData.id),
+              isAdmin: userData.is_staff,
+              isPremium: userData.is_premium,
+            });
+          }
+        } catch (err) {
+          console.error("Помилка завантаження користувача:", err);
+        }
+      }
+
+      // Статті
+      try {
+        const res = await fetch(
+          `http://127.0.0.1:8000/api/articles/?category=${category}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              ...(token && { Authorization: `Bearer ${token}` }),
+            },
+          }
+        );
+
+        let articlesData = await res.json();
+
+
+        // адмiн або премiум → всі
+        // звичайний / гiсть → без premium
+        const isPrivilegedUser =
+          userData && (userData.is_staff || userData.is_premium);
+
+        if (!isPrivilegedUser) {
+          articlesData = articlesData.filter((a) => !a.is_premium);
+        }
+
+        setArticles(articlesData);
+      } catch (err) {
+        console.error("Помилка завантаження статей:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserAndArticles();
   }, [category, token]);
 
+  // === Показати / сховати коментарі ===
   const toggleComments = (articleId) => {
-    setExpandedArticles((prev) => ({ ...prev, [articleId]: !prev[articleId] }));
+    setExpandedArticles((prev) => ({
+      ...prev,
+      [articleId]: !prev[articleId],
+    }));
   };
 
+  // === Видалення статті (тільки адмiн) ===
   const handleDelete = (id) => {
     if (!window.confirm("Видалити статтю?")) return;
 
@@ -177,45 +108,129 @@ useEffect(() => {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
-        if (res.ok) setArticles((prev) => prev.filter((a) => a.id !== id));
+        if (res.ok) {
+          setArticles((prev) => prev.filter((a) => a.id !== id));
+        }
       })
       .catch(console.error);
   };
 
+  // === Збереження / видалення зі збережених ===
+  const toggleSave = async (articleId) => {
+    if (!token) {
+      alert("Увійдіть, щоб зберігати статті");
+      return;
+    }
+
+    const isSaved = savedArticles.includes(articleId);
+
+    if (isSaved) {
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/saved/?article=${articleId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const saved = await res.json();
+      const idToDelete = saved[0]?.id;
+
+      if (idToDelete) {
+        await fetch(`http://127.0.0.1:8000/api/saved/${idToDelete}/`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setSavedArticles((prev) => prev.filter((id) => id !== articleId));
+      }
+    } else {
+      const res = await fetch("http://127.0.0.1:8000/api/saved/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ article: articleId }),
+      });
+
+      if (res.ok) {
+        setSavedArticles((prev) => [...prev, articleId]);
+      }
+    }
+  };
+
+  if (loading) return <p>Завантаження статей...</p>;
+
   return (
     <div className="articles-container">
-      <h2>{category.toUpperCase()}</h2>
+     <h2>{CATEGORY_LABELS[category] || category}</h2>
+
       {articles.length === 0 ? (
         <p>Немає статей у цій категорії.</p>
       ) : (
         <div className="articles-grid">
           {articles.map((a) => (
             <div key={a.id} className="article-card">
-              {a.image && <img src={a.image} alt={a.title} className="article-image" />}
-              <h3>{a.title}</h3>
-              <p>{a.excerpt || (a.content?.substring(0, 120) + "...")}</p>
-              <small>{a.category} | {new Date(a.created_at).toLocaleDateString()}</small>
+              {a.image && (
+                <img
+                  src={a.image}
+                  alt={a.title}
+                  className="article-image"
+                />
+              )}
 
-              {isAdmin && (
+              <h3>{a.title}</h3>
+
+              <p className="article-description">
+                {a.excerpt || a.content || "Немає опису"}
+              </p>
+
+              <small>
+                {a.category} |{" "}
+                {new Date(a.created_at).toLocaleDateString()}
+              </small>
+
+              {/* === Збереження === */}
+              <button
+                onClick={() => toggleSave(a.id)}
+                className={`save-btn ${
+                  savedArticles.includes(a.id) ? "saved" : ""
+                }`}
+              >
+                {savedArticles.includes(a.id)
+                  ? "💾 Збережено"
+                  : "📥 Зберегти"}
+              </button>
+
+              {/* === Адмiн === */}
+              {currentUser?.isAdmin && (
                 <div className="admin-controls">
-                  <button onClick={() => navigate(`/edit-article/${a.id}`)}>✏️ Редагувати</button>
-                  <button onClick={() => handleDelete(a.id)}>🗑️ Видалити</button>
+                  <button onClick={() => navigate(`/edit-article/${a.id}`)}>
+                    ✏️ Редагувати
+                  </button>
+                  <button onClick={() => handleDelete(a.id)}>
+                    🗑️ Видалити
+                  </button>
                 </div>
               )}
 
-              <button onClick={() => toggleComments(a.id)}>
-                💬 {expandedArticles[a.id] ? "Сховати коментарі" : "Показати коментарі"}
+              {/* === Коментарi === */}
+              <button
+                onClick={() => toggleComments(a.id)}
+                className="comments-toggle-btn"
+              >
+                💬{" "}
+                {expandedArticles[a.id]
+                  ? "Сховати коментарі"
+                  : "Показати коментарі"}
               </button>
 
               {expandedArticles[a.id] && (
-              <CommentsSection
-                articleId={a.id}
-                token={token}
-                currentUserId={currentUserId}
-                isAdmin={isAdmin}
-              />
-            )}
-
+                <CommentsSection
+                  articleId={a.id}
+                  token={token}
+                  currentUserId={currentUser?.id}
+                  isAdmin={currentUser?.isAdmin}
+                />
+              )}
             </div>
           ))}
         </div>
@@ -225,5 +240,3 @@ useEffect(() => {
 }
 
 export default ArticlesPage;
-
-

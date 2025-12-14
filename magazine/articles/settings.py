@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 from datetime import timedelta
 from pathlib import Path
-import os   # ← теж треба для os.path.join
+import os
+from decouple import config, Csv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,12 +28,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-2#0f!(bdpsb8cv#is-=ozy84u^9%b^xt)qj+adqv3izf&47qju"
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-2#0f!(bdpsb8cv#is-=ozy84u^9%b^xt)qj+adqv3izf&47qju')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+
+# Admin Registration Secret Key
+ADMIN_SECRET_KEY = config('ADMIN_SECRET_KEY', default='admin-secret-2024')
 
 
 # Application definition
@@ -94,11 +98,11 @@ WSGI_APPLICATION = "magazine.articles.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "magazine_db",          # назва твоєї БД
-        "USER": "magazine_user",        # ім’я користувача
-        "PASSWORD": "strong_password",  # пароль
-        "HOST": "localhost",            # або IP сервера
-        "PORT": "3306",                 # порт MySQL
+        "NAME": config('DATABASE_NAME', default='magazine_db'),
+        "USER": config('DATABASE_USER', default='root'),
+        "PASSWORD": config('DATABASE_PASSWORD', default='admin'),
+        "HOST": config('DATABASE_HOST', default='localhost'),
+        "PORT": config('DATABASE_PORT', default='3306'),
         "OPTIONS": {
             "charset": "utf8mb4",
         },
@@ -146,6 +150,10 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Custom User Model
+AUTH_USER_MODEL = 'articles.User'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
